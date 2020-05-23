@@ -39,14 +39,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="netstandard" Condition=" '$(OS)' != 'Windows_NT' " />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' AND '$(TargetFramework)' == 'net472' ">
-    <FrameworkPathOverride>$(NuGetPackageRoot)microsoft.targetingpack.netframework.v4.7.2/1.0.0/lib/net472/</FrameworkPathOverride>
-    <RestoreAdditionalProjectSources>https://dotnet.myget.org/F/dotnet-core/api/v3/index.json</RestoreAdditionalProjectSources>
-  </PropertyGroup>
 
 </Project>
