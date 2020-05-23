@@ -152,11 +152,6 @@ namespace Xunit.Sdk
         /// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
         public static Type GetType(string assemblyName, string typeName)
         {
-#if XUNIT_FRAMEWORK    // This behavior is only for v2, and only done on the remote app domain side
-            if (assemblyName.EndsWith(ExecutionHelper.SubstitutionToken, StringComparison.OrdinalIgnoreCase))
-                assemblyName = assemblyName.Substring(0, assemblyName.Length - ExecutionHelper.SubstitutionToken.Length + 1) + ExecutionHelper.PlatformSuffix;
-#endif
-
 #if NETFRAMEWORK
             // Support both long name ("assembly, version=x.x.x.x, etc.") and short name ("assembly")
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == assemblyName || a.GetName().Name == assemblyName);
@@ -233,12 +228,6 @@ namespace Xunit.Sdk
                 if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
                     return typeName;
-
-#if XUNIT_FRAMEWORK // This behavior is only for v2, and only done on the remote app domain side
-                // If this is a platform specific assembly, strip off the trailing . and name and replace it with the token
-                if (typeToMap.GetAssembly().GetCustomAttributes().FirstOrDefault(a => a != null && a.GetType().FullName == "Xunit.Sdk.PlatformSpecificAssemblyAttribute") != null)
-                    assemblyName = assemblyName.Substring(0, assemblyName.LastIndexOf('.')) + ExecutionHelper.SubstitutionToken;
-#endif
 
                 return $"{typeName}, {assemblyName}";
             }

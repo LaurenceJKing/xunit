@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <ProjectReference Include="..\xunit.v3.abstractions\xunit.v3.abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">

@@ -11,7 +11,7 @@ namespace Xunit
 {
     /// <summary>
     /// Default implementation of <see cref="IFrontController"/> which supports running tests from
-    /// both xUnit.net v1 and v2.
+    /// all of xUnit.net v1, v2, and v3.
     /// </summary>
     public class XunitFrontController : IFrontController, ITestCaseDescriptorProvider, ITestCaseBulkDeserializer
     {
@@ -126,8 +126,11 @@ namespace Xunit
         /// </summary>
         protected virtual IFrontController CreateInnerController()
         {
-#if NETFRAMEWORK
+            // TODO: Integrate in v3 support for .NET Framework, when it's re-added to xunit.v3.runner.utility
+
             var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
+
+#if NETFRAMEWORK
 #if NET35
             if (Directory.GetFiles(assemblyFolder, "xunit.execution.*.dll").Length > 0)
 #else
@@ -141,7 +144,10 @@ namespace Xunit
 
             throw new InvalidOperationException($"Unknown test framework: could not find xunit.dll (v1) or xunit.execution.*.dll (v2) in {assemblyFolder}");
 #else
-            return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
+            if (File.Exists(Path.Combine(assemblyFolder, "xunit.v3.execution.dll")))
+                return new Xunit3(sourceInformationProvider, assemblyFileName, configFileName, diagnosticMessageSink);
+            else
+                return new Xunit2(appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder, diagnosticMessageSink);
 #endif
         }
 
