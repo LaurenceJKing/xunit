@@ -22,7 +22,8 @@ public static class TestCore
             var fileName = Path.GetFileName(testDll);
             var folder = Path.GetDirectoryName(testDll);
 
-            await context.Exec("dotnet", $"exec \"{fileName}\"", workingDirectory: folder);
+            // TODO: XML output?
+            await context.Exec("dotnet", $"exec {fileName}", workingDirectory: folder);
         }
     }
 }
