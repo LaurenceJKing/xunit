@@ -1,6 +1,4 @@
-using Xunit.Abstractions;
-
-namespace Xunit
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// This interface represents a reporter which is invoked by a test runner
@@ -33,9 +31,7 @@ namespace Xunit
 
         /// <summary>
         /// Creates a message handler that will report messages for the given
-        /// test assembly. Ideally, the handler should also implement <see cref="IMessageSinkWithTypes"/>
-        /// for optimal performance, but plain implementations of <see cref="IMessageSink"/> are supported
-        /// for backward compatibility reasons.
+        /// test assembly.
         /// </summary>
         /// <param name="logger">The logger used to send result messages to</param>
         /// <returns>The message handler that handles the messages</returns>

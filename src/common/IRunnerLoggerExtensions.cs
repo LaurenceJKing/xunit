@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Abstractions;
 
 /// <summary>
 /// Extensions methods for <see cref="IRunnerLogger"/>.

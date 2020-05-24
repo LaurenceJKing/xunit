@@ -1,4 +1,5 @@
 ﻿using System;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -34,7 +35,7 @@ namespace Xunit
         public object LockObject => lockObject;
 
         /// <inheritdoc/>
-        public void LogError(StackFrameInfo stackFrame, string message)
+        public void LogError(IStackFrameInfo stackFrame, string message)
         {
             using (SetColor(ConsoleColor.Red))
                 lock (LockObject)
@@ -42,7 +43,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void LogImportantMessage(StackFrameInfo stackFrame, string message)
+        public void LogImportantMessage(IStackFrameInfo stackFrame, string message)
         {
             using (SetColor(ConsoleColor.Gray))
                 lock (LockObject)
@@ -50,7 +51,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void LogMessage(StackFrameInfo stackFrame, string message)
+        public void LogMessage(IStackFrameInfo stackFrame, string message)
         {
             using (SetColor(ConsoleColor.DarkGray))
                 lock (LockObject)
@@ -58,7 +59,7 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
-        public void LogWarning(StackFrameInfo stackFrame, string message)
+        public void LogWarning(IStackFrameInfo stackFrame, string message)
         {
             using (SetColor(ConsoleColor.Yellow))
                 lock (LockObject)

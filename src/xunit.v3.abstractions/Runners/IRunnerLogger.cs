@@ -1,4 +1,4 @@
-namespace Xunit
+namespace Xunit.Abstractions
 {
     /// <summary>
     /// Interface implemented by runners, passed to <see cref="IRunnerReporter"/>, so that the
@@ -17,27 +17,27 @@ namespace Xunit
         /// </summary>
         /// <param name="stackFrame">The stack frame information</param>
         /// <param name="message">The message to be logged</param>
-        void LogMessage(StackFrameInfo stackFrame, string message);
+        void LogMessage(IStackFrameInfo stackFrame, string message);
 
         /// <summary>
         /// Logs a high-priority message with stack frame.
         /// </summary>
         /// <param name="stackFrame">The stack frame information</param>
         /// <param name="message">The message to be logged</param>
-        void LogImportantMessage(StackFrameInfo stackFrame, string message);
+        void LogImportantMessage(IStackFrameInfo stackFrame, string message);
 
         /// <summary>
         /// Logs a warning message with stack frame.
         /// </summary>
         /// <param name="stackFrame">The stack frame information</param>
         /// <param name="message">The message to be logged</param>
-        void LogWarning(StackFrameInfo stackFrame, string message);
+        void LogWarning(IStackFrameInfo stackFrame, string message);
 
         /// <summary>
         /// Logs an error message with stack frame.
         /// </summary>
         /// <param name="stackFrame">The stack frame information</param>
         /// <param name="message">The message to be logged</param>
-        void LogError(StackFrameInfo stackFrame, string message);
+        void LogError(IStackFrameInfo stackFrame, string message);
     }
 }

@@ -9,7 +9,7 @@ namespace Xunit
     /// <summary>
     /// Represents the top of a stack frame, typically taken from an exception or failure information.
     /// </summary>
-    public struct StackFrameInfo
+    public struct StackFrameInfo : IStackFrameInfo
     {
         readonly static Regex stackFrameRegex = GetStackFrameRegex();
 
@@ -24,19 +24,13 @@ namespace Xunit
             LineNumber = lineNumber;
         }
 
-        /// <summary>
-        /// Gets the filename of the stack frame. May be <c>null</c> if the stack frame is not known.
-        /// </summary>
+        /// <inheritdoc/>
         public string FileName { get; private set; }
 
-        /// <summary>
-        /// Returns <c>true</c> if this is an empty stack frame (e.g., <see cref="None"/>).
-        /// </summary>
+        /// <inheritdoc/>
         public bool IsEmpty { get { return string.IsNullOrEmpty(FileName) && LineNumber == 0; } }
 
-        /// <summary>
-        /// Gets the line number of the stack frame. May be 0 if the stack frame is not known.
-        /// </summary>
+        /// <inheritdoc/>
         public int LineNumber { get; private set; }
 
         /// <summary>
