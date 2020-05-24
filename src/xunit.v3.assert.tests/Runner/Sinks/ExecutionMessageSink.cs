@@ -50,13 +50,10 @@ namespace Xunit
                 Interlocked.Increment(ref errors);
             }
 
-            if (message is IFailureInformation failureInfo)
+            if (message is ITestFailed testFailed)
             {
-                Console.WriteLine("Failure!");
-                foreach (var exceptionType in failureInfo.ExceptionTypes)
-                    Console.WriteLine(exceptionType);
-                foreach (var stackTrace in failureInfo.StackTraces)
-                    Console.WriteLine(stackTrace);
+                Console.WriteLine($"FAIL {testFailed.Test.DisplayName}");
+                Console.WriteLine($"     {testFailed.Messages[0]}");
             }
 
             if (message is ITestAssemblyFinished testAssemblyFinishedMessage)
