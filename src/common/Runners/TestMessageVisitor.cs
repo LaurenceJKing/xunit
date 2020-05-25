@@ -9,7 +9,6 @@ namespace Xunit
     /// An implementation of <see cref="IMessageSink"/> that provides several Visit methods that
     /// can provide access to specific message types without the burden of casting.
     /// </summary>
-    [Obsolete("This class has poor performance; please use TestMessageSink instead.")]
     public class TestMessageVisitor : LongLivedMarshalByRefObject, IMessageSink
     {
         /// <summary>
@@ -36,7 +35,7 @@ namespace Xunit
         /// <param name="message">The message</param>
         /// <param name="callback">The callback</param>
         /// <returns>The result of the callback, if called; <c>true</c>, otherwise</returns>
-        bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
+        protected bool DoVisit<TMessage>(IMessageSinkMessage message, Func<TestMessageVisitor, TMessage, bool> callback)
             where TMessage : class, IMessageSinkMessage
         {
             if (message is TMessage castMessage)

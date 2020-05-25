@@ -21,6 +21,6 @@ namespace Xunit
         /// Gets the summaries of all the tests run. The key is the display name of the test
         /// assembly; the value is the summary of test execution for that assembly.
         /// </summary>
-        List<KeyValuePair<string, ExecutionSummary>> Summaries { get; }
+        List<KeyValuePair<string, IExecutionSummary>> Summaries { get; }
     }
 }

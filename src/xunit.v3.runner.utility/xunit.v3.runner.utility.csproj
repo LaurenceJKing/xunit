@@ -13,27 +13,22 @@
     <Compile Include="..\common\CommonTasks.cs" LinkBase="Common" />
     <Compile Include="..\common\ConcurrentDictionary.cs" LinkBase="Common" />
     <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
-    <Compile Include="..\common\ConsoleRunnerLogger.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExecutionSummary.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\common\IRunnerLoggerExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\Json.cs" LinkBase="Common" />
     <Compile Include="..\common\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
     <Compile Include="..\common\NewReflectionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\NullMessageSink.cs" LinkBase="Common" />
     <Compile Include="..\common\SerializationHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\SourceInformation.cs" LinkBase="Common" />
-    <Compile Include="..\common\StackFrameInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplay.cs" LinkBase="Common" />
     <Compile Include="..\common\TestMethodDisplayOptions.cs" LinkBase="Common" />
     <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitSerializationInfo.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
-    <Compile Include="..\common\AssemblyResolution\AssemblyHelper_Desktop.cs" LinkBase="Common" />
-    <Compile Include="..\common\AssemblyResolution\_DiagnosticMessage.cs" LinkBase="Common" />
+    <Compile Include="..\common\Runners\**\*.cs" LinkBase="Common\Runners" />
     <Compile Include="..\messages\**\*.cs" LinkBase="Messages" />
     <EmbeddedResource Include="Resources\xunit.runner.utility.netstandard20.rd.xml" />
   </ItemGroup>

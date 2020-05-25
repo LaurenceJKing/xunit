@@ -1,5 +1,6 @@
 using System;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Xunit
 {
@@ -9,17 +10,6 @@ namespace Xunit
     /// </summary>
     public class TestAssemblyConfiguration : ITestAssemblyConfiguration
     {
-        /// <summary>
-        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
-        /// </summary>
-        public AppDomainSupport? AppDomain { get; set; }
-
-        /// <summary>
-        /// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
-        /// If the flag is not set, returns the default value (<see cref="AppDomainSupport.IfAvailable"/>).
-        /// </summary>
-        public AppDomainSupport AppDomainOrDefault { get { return AppDomain ?? AppDomainSupport.IfAvailable; } }
-
         /// <summary>
         /// Gets or sets a flag indicating that the end user wants diagnostic messages
         /// from the test framework.
@@ -92,18 +82,6 @@ namespace Xunit
         public TestMethodDisplayOptions MethodDisplayOptionsOrDefault { get { return MethodDisplayOptions ?? TestMethodDisplayOptions.None; } }
 
         /// <summary>
-        /// Gets or sets a flag indicating that this assembly is safe to parallelize against
-        /// other assemblies.
-        /// </summary>
-        public bool? ParallelizeAssembly { get; set; }
-
-        /// <summary>
-        /// Gets a flag indicating that this assembly is safe to parallelize against
-        /// other assemblies. If the flag is not set, returns the default value (<c>false</c>).
-        /// </summary>
-        public bool ParallelizeAssemblyOrDefault { get { return ParallelizeAssembly ?? false; } }
-
-        /// <summary>
         /// Gets or sets a flag indicating that this test assembly wants to run test collections
         /// in parallel against one another.
         /// </summary>
@@ -127,17 +105,6 @@ namespace Xunit
         /// test discovery. If the flag is not set, returns the default value (<c>true</c>).
         /// </summary>
         public bool PreEnumerateTheoriesOrDefault { get { return PreEnumerateTheories ?? true; } }
-
-        /// <summary>
-        /// Gets or sets a flag indicating whether shadow copies should be used.
-        /// </summary>
-        public bool? ShadowCopy { get; set; }
-
-        /// <summary>
-        /// Gets a flag indicating whether shadow copies should be used. If the flag is not set,
-        /// returns the default value (<c>true</c>).
-        /// </summary>
-        public bool ShadowCopyOrDefault { get { return ShadowCopy ?? true; } }
 
         /// <summary>
         /// Gets or sets a flag indicating whether testing should stop on a failure.

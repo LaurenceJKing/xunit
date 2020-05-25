@@ -11,7 +11,7 @@ namespace Xunit
         /// <summary>
         /// Gets information about the assembly being discovered.
         /// </summary>
-        XunitProjectAssembly Assembly { get; }
+        IXunitProjectAssembly Assembly { get; }
 
         /// <summary>
         /// Gets the options that were used during discovery.

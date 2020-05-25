@@ -1,4 +1,5 @@
-﻿using Xunit.Abstractions;
+﻿using System.Reflection;
+using Xunit.Abstractions;
 
 namespace Xunit
 {
@@ -7,10 +8,15 @@ namespace Xunit
     /// </summary>
     public class XunitProjectAssembly : IXunitProjectAssembly
     {
-        TestAssemblyConfiguration configuration;
+        TestAssemblyConfiguration configuration = null;
+
+        /// <summary>
+        /// Gets or sets the assembly that will be tested.
+        /// </summary>
+        public Assembly Assembly { get; set; }
 
         /// <inheritdoc />
-        public string AssemblyFilename { get; set; }
+        public string AssemblyFilename => Assembly.GetLocalCodeBase();
 
         /// <inheritdoc />
         public string ConfigFilename { get; set; }
@@ -21,7 +27,8 @@ namespace Xunit
             get
             {
                 if (configuration == null)
-                    configuration = ConfigReader.Load(AssemblyFilename, ConfigFilename);
+                    configuration = new TestAssemblyConfiguration();
+                    // configuration = ConfigReader.Load(AssemblyFilename, ConfigFilename);
 
                 return configuration;
             }

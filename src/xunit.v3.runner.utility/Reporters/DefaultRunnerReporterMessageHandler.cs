@@ -11,7 +11,6 @@ namespace Xunit
     /// Default implementation of <see cref="IMessageSink"/> used to report
     /// messages for test runners.
     /// </summary>
-    [Obsolete("This class has poor performance; please use DefaultRunnerReporterWithTypesMessageHandler instead.")]
     public class DefaultRunnerReporterMessageHandler : TestMessageVisitor
     {
         readonly string defaultDirectory = null;
@@ -70,7 +69,7 @@ namespace Xunit
         /// </summary>
         /// <param name="assembly">The test assembly</param>
         /// <returns>The assembly display name</returns>
-        protected virtual string GetAssemblyDisplayName(XunitProjectAssembly assembly)
+        protected virtual string GetAssemblyDisplayName(IXunitProjectAssembly assembly)
         {
             return Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
         }

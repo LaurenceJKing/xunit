@@ -12,12 +12,13 @@ namespace Xunit
         /// Gets a flag which indicates whether the tests will be discovered and run in a
         /// separate app domain.
         /// </summary>
+        // TODO: This doesn't belong here
         bool AppDomain { get; }
 
         /// <summary>
         /// Gets information about the assembly being discovered.
         /// </summary>
-        XunitProjectAssembly Assembly { get; }
+        IXunitProjectAssembly Assembly { get; }
 
         /// <summary>
         /// Gets the options that will be used during discovery.
@@ -28,6 +29,7 @@ namespace Xunit
         /// Gets a flag which indicates whether shadow copies are being used. If app domains are
         /// not enabled, then this value is ignored.
         /// </summary>
+        // TODO: This doesn't belong here
         bool ShadowCopy { get; }
     }
 }

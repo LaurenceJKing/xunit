@@ -18,9 +18,8 @@ namespace Xunit.ConsoleClient
         readonly object consoleLock;
         ExecutionSummary executionSummary;
         bool failed;
-        //IRunnerLogger logger;
-        ConsoleRunnerLogger logger;
-        //IMessageSink reporterMessageHandler;
+        IRunnerLogger logger;
+        IMessageSink reporterMessageHandler;
 
         public ConsoleRunner(object consoleLock)
         {
@@ -33,12 +32,12 @@ namespace Xunit.ConsoleClient
 
             try
             {
-                //var reporters = GetAvailableRunnerReporters();
+                var reporters = GetAvailableRunnerReporters();
 
                 if (args.Length > 0 && (args[0] == "-?" || args[0] == "/?" || args[0] == "-h" || args[0] == "--help"))
                 {
                     PrintHeader();
-                    PrintUsage(/*reporters*/);
+                    PrintUsage(reporters);
                     return 2;
                 }
 
@@ -61,7 +60,7 @@ namespace Xunit.ConsoleClient
                 if (!defaultDirectory.EndsWith(new string(new[] { Path.DirectorySeparatorChar }), StringComparison.Ordinal))
                     defaultDirectory += Path.DirectorySeparatorChar;
 
-                //var reporter = commandLine.ChooseReporter(reporters);
+                var reporter = commandLine.ChooseReporter(reporters);
 
                 if (commandLine.Pause)
                 {
@@ -74,7 +73,7 @@ namespace Xunit.ConsoleClient
                     Debugger.Launch();
 
                 logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
-                //reporterMessageHandler = reporter.CreateMessageHandler(logger);
+                reporterMessageHandler = reporter.CreateMessageHandler(logger);
 
                 if (!commandLine.NoLogo)
                     PrintHeader();
@@ -122,9 +121,9 @@ namespace Xunit.ConsoleClient
             }
         }
 
-        //        List<IRunnerReporter> GetAvailableRunnerReporters()
-        //        {
-        //            var result = new List<IRunnerReporter>();
+        List<IRunnerReporter> GetAvailableRunnerReporters()
+        {
+            var result = new List<IRunnerReporter>();
 
         //            var runnerPath = Path.GetDirectoryName(typeof(Program).GetTypeInfo().Assembly.Location);
 
@@ -169,8 +168,8 @@ namespace Xunit.ConsoleClient
         //                }
         //            }
 
-        //            return result;
-        //        }
+            return result;
+        }
 
 #if NETFRAMEWORK
         void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -196,8 +195,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine($"xUnit.net Console Runner v{versionAttribute.InformationalVersion} ({IntPtr.Size * 8}-bit {platform})");
         }
 
-        //void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
-        void PrintUsage()
+        void PrintUsage(IReadOnlyList<IRunnerReporter> reporters)
         {
             Console.WriteLine("Copyright (C) .NET Foundation.");
             Console.WriteLine();
@@ -248,16 +246,16 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                         : (for example, auto-detecting TeamCity or AppVeyor)");
             Console.WriteLine();
 
-            //var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
-            //if (switchableReporters.Count > 0)
-            //{
-            //    Console.WriteLine("Reporters: (optional, choose only one)");
+            var switchableReporters = reporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
+            if (switchableReporters.Count > 0)
+            {
+                Console.WriteLine("Reporters: (optional, choose only one)");
 
-            //    foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
-            //        Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant(),-21} : {reporter.Description}");
+                foreach (var reporter in switchableReporters.OrderBy(r => r.RunnerSwitch))
+                    Console.WriteLine($"  -{reporter.RunnerSwitch.ToLowerInvariant(),-21} : {reporter.Description}");
 
-            //    Console.WriteLine();
-            //}
+                Console.WriteLine();
+            }
 
             Console.WriteLine("Result formats: (optional, choose one or more)");
             TransformFactory.AvailableTransforms.ForEach(
@@ -274,6 +272,12 @@ namespace Xunit.ConsoleClient
                        bool stopOnFail,
                        bool internalDiagnosticMessages)
         {
+            var assembly = new XunitProjectAssembly
+            {
+                Assembly = Assembly.GetEntryAssembly(),
+                ConfigFilename = configFileName != null ? Path.GetFullPath(configFileName) : null,
+            };
+
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
             //var xmlTransformers = TransformFactory.GetXmlTransformers(project);
@@ -284,7 +288,7 @@ namespace Xunit.ConsoleClient
 
             var originalWorkingFolder = Directory.GetCurrentDirectory();
 
-            var assemblyElement = ExecuteAssembly(consoleLock, configFileName, false /*needsXml*/, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, /*project.Filters, */internalDiagnosticMessages);
+            var assemblyElement = ExecuteAssembly(consoleLock, assembly, configFileName, false /*needsXml*/, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, failSkips, stopOnFail, /*project.Filters, */internalDiagnosticMessages);
             if (assemblyElement != null)
                 assembliesElement.Add(assemblyElement);
 
@@ -293,8 +297,10 @@ namespace Xunit.ConsoleClient
             if (assembliesElement != null)
                 assembliesElement.Add(new XAttribute("timestamp", DateTime.Now.ToString(CultureInfo.InvariantCulture)));
 
-            //if (completionMessages.Count > 0)
-            //    reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, completionMessages.OrderBy(kvp => kvp.Key).ToList()));
+            var summary = new KeyValuePair<string, IExecutionSummary>(Path.GetFileNameWithoutExtension(assembly.AssemblyFilename), executionSummary);
+            var summaries = new List<KeyValuePair<string, IExecutionSummary>> { summary };
+
+            reporterMessageHandler.OnMessage(new TestExecutionSummary(clockTime.Elapsed, summaries));
 
             Directory.SetCurrentDirectory(originalWorkingFolder);
 
@@ -304,6 +310,7 @@ namespace Xunit.ConsoleClient
         }
 
         XElement ExecuteAssembly(object consoleLock,
+                                 XunitProjectAssembly assembly,
                                  string configFileName,
                                  //bool serialize,
                                  bool needsXml,
@@ -326,85 +333,71 @@ namespace Xunit.ConsoleClient
                 if (!ValidateFileExists(consoleLock, configFileName))
                     return null;
 
-                // TODO: Need to actually load configuration file and use values
-
                 // Turn off pre-enumeration of theories, since there is no theory selection UI in this runner
-                //assembly.Configuration.PreEnumerateTheories = false;
-                //assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
-                //assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
+                assembly.Configuration.PreEnumerateTheories = false;
+                assembly.Configuration.DiagnosticMessages |= diagnosticMessages;
+                assembly.Configuration.InternalDiagnosticMessages |= internalDiagnosticMessages;
 
                 // Setup discovery and execution options with command-line overrides
                 var discoveryOptions = TestFrameworkOptions.ForDiscovery(/*assembly.Configuration*/);
                 var executionOptions = TestFrameworkOptions.ForExecution(/*assembly.Configuration*/);
-                //executionOptions.SetStopOnTestFail(stopOnFail);
-                //if (maxThreadCount.HasValue)
-                //    executionOptions.SetMaxParallelThreads(maxThreadCount);
-                //if (parallelizeTestCollections.HasValue)
-                //    executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
+                executionOptions.SetStopOnTestFail(stopOnFail);
+                if (maxThreadCount.HasValue)
+                   executionOptions.SetMaxParallelThreads(maxThreadCount);
+                if (parallelizeTestCollections.HasValue)
+                   executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
 
-                var assembly = Assembly.GetEntryAssembly();
-                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.GetLocalCodeBase());
+                var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFilename);
                 var diagnosticMessageSink = DiagnosticMessageSink.ForDiagnostics(consoleLock, assemblyDisplayName, diagnosticMessages, noColor);
                 var internalDiagnosticsMessageSink = DiagnosticMessageSink.ForInternalDiagnostics(consoleLock, assemblyDisplayName, internalDiagnosticMessages, noColor);
-                //var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+                var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-                //using (var controller = new XunitFrontController(appDomainSupport, assembly.AssemblyFilename, assembly.ConfigFilename, shadowCopy, diagnosticMessageSink: diagnosticMessageSink))
-                //using (var discoverySink = new TestDiscoverySink(() => cancel))
-                using (var testFramework = new XunitTestFramework(diagnosticMessageSink))
+                using var testFramework = new XunitTestFramework(diagnosticMessageSink);
+                var assemblyInfo = new ReflectionAssemblyInfo(assembly.Assembly);
+                var discoverySink = new DiscoveryMessageSink(() => cancel);
+
+                using (var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo))
                 {
-                    var assemblyInfo = new ReflectionAssemblyInfo(assembly);
-                    var discoverySink = new DiscoveryMessageSink(() => cancel);
+                    // Discover & filter the tests
+                    reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, discoveryOptions));
 
-                    using (var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo))
+                    testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
+                    discoverySink.Finished.WaitOne();
+                }
+
+                var testCasesDiscovered = discoverySink.TestCases.Count;
+                //var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
+                var filteredTestCases = discoverySink.TestCases.ToList();
+                var testCasesToRun = filteredTestCases.Count;
+
+                reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
+
+                // Run the filtered tests
+                if (testCasesToRun == 0)
+                    executionSummary = new ExecutionSummary();
+                else
+                {
+                    reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
+
+                    var resultsSink = new ExecutionMessageSink(reporterMessageHandler, () => cancel);
+                    //if (assemblyElement != null)
+                    //    resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
+                    //if (longRunningSeconds > 0)
+                    //    resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
+                    //if (failSkips)
+                    //    resultsSink = new DelegatingFailSkipSink(resultsSink);
+
+                    using var executor = testFramework.GetExecutor(assembly.Assembly.GetName());
+                    executor.RunTests(filteredTestCases, resultsSink, executionOptions);
+                    resultsSink.Finished.WaitOne();
+
+                    executionSummary = resultsSink.ExecutionSummary;
+
+                    reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
+                    if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
                     {
-                        // Discover & filter the tests
-                        //reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryStarting(assembly, controller.CanUseAppDomains && appDomainSupport != AppDomainSupport.Denied, shadowCopy, discoveryOptions));
-
-                        testDiscoverer.Find(includeSourceInformation: false, discoverySink, discoveryOptions);
-                        discoverySink.Finished.WaitOne();
-                    }
-
-                    // TODO: REMOVE ME
-                    Console.WriteLine($"Found {discoverySink.TestCases.Count} test case(s)!");
-
-                    var testCasesDiscovered = discoverySink.TestCases.Count;
-                    //var filteredTestCases = discoverySink.TestCases.Where(filters.Filter).ToList();
-                    var filteredTestCases = discoverySink.TestCases.ToList();
-                    var testCasesToRun = filteredTestCases.Count;
-
-                    //reporterMessageHandler.OnMessage(new TestAssemblyDiscoveryFinished(assembly, discoveryOptions, testCasesDiscovered, testCasesToRun));
-
-                    // Run the filtered tests
-                    if (testCasesToRun == 0)
-                        executionSummary = new ExecutionSummary();
-                    else
-                    {
-                        //reporterMessageHandler.OnMessage(new TestAssemblyExecutionStarting(assembly, executionOptions));
-
-                        var resultsSink = new ExecutionMessageSink(/*reporterMessageHandler,*/ () => cancel);
-                        //if (assemblyElement != null)
-                        //    resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-                        //if (longRunningSeconds > 0)
-                        //    resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), MessageSinkWithTypesAdapter.Wrap(diagnosticMessageSink));
-                        //if (failSkips)
-                        //    resultsSink = new DelegatingFailSkipSink(resultsSink);
-
-                        using (var executor = testFramework.GetExecutor(assembly.GetName()))
-                        {
-                            executor.RunTests(filteredTestCases, resultsSink, executionOptions);
-                            resultsSink.Finished.WaitOne();
-
-                            executionSummary = resultsSink.ExecutionSummary;
-
-                            //reporterMessageHandler.OnMessage(new TestAssemblyExecutionFinished(assembly, executionOptions, resultsSink.ExecutionSummary));
-                            if (stopOnFail && resultsSink.ExecutionSummary.Failed != 0)
-                            {
-                                Console.WriteLine("Canceling due to test failure...");
-                                cancel = true;
-                            }
-
-                            Console.WriteLine($"We ran stuff! Total: {executionSummary.Total}, Failed: {executionSummary.Failed}, Skipped: {executionSummary.Skipped}");
-                        }
+                        Console.WriteLine("Canceling due to test failure...");
+                        cancel = true;
                     }
                 }
             }

@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using Xunit.Abstractions;
 
-#if XUNIT_FRAMEWORK
-namespace Xunit.Sdk
-#else
 namespace Xunit
-#endif
 {
     /// <summary>
     /// Utility classes for dealing with Exception objects.
     /// </summary>
-    public static class ExceptionUtility
+    static class ExceptionUtility
     {
         /// <summary>
         /// Combines multiple levels of messages into a single message.

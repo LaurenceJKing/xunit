@@ -11,7 +11,7 @@ namespace Xunit
         /// <summary>
         /// Gets information about the assembly being discovered.
         /// </summary>
-        XunitProjectAssembly Assembly { get; }
+        IXunitProjectAssembly Assembly { get; }
 
         /// <summary>
         /// Gets the options that were used during execution.
@@ -21,6 +21,6 @@ namespace Xunit
         /// <summary>
         /// Gets the summary of the execution results for the test assembly.
         /// </summary>
-        ExecutionSummary ExecutionSummary { get; }
+        IExecutionSummary ExecutionSummary { get; }
     }
 }

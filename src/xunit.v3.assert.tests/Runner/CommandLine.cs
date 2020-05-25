@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Xunit.Abstractions;
 
 namespace Xunit.ConsoleClient
 {
@@ -48,25 +49,25 @@ namespace Xunit.ConsoleClient
 
         public bool Wait { get; protected set; }
 
-        //public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
-        //{
-        //    var result = default(IRunnerReporter);
+        public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
+        {
+           var result = default(IRunnerReporter);
 
-        //    foreach (var unknownOption in unknownOptions)
-        //    {
-        //        var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
+           foreach (var unknownOption in unknownOptions)
+           {
+               var reporter = reporters.FirstOrDefault(r => r.RunnerSwitch == unknownOption) ?? throw new ArgumentException($"unknown option: -{unknownOption}");
 
-        //        if (result != null)
-        //            throw new ArgumentException("only one reporter is allowed");
+               if (result != null)
+                   throw new ArgumentException("only one reporter is allowed");
 
-        //        result = reporter;
-        //    }
+               result = reporter;
+           }
 
-        //    if (!NoAutoReporters)
-        //        result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
+           if (!NoAutoReporters)
+               result = reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) ?? result;
 
-        //    return result ?? new DefaultRunnerReporterWithTypes();
-        //}
+           return result ?? new DefaultRunnerReporter();
+        }
 
         protected virtual string GetFullPath(string fileName)
         {

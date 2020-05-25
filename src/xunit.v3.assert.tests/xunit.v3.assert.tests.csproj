@@ -20,12 +20,14 @@
   <ItemGroup>
     <Compile Include="..\common\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\common\ConsoleHelper.cs" LinkBase="Common" />
-    <Compile Include="..\common\ConsoleRunnerLogger.cs" LinkBase="Common" />
     <Compile Include="..\common\DictionaryExtensions.cs" LinkBase="Common" />
-    <Compile Include="..\common\ExecutionSummary.cs" LinkBase="Common" />
+    <Compile Include="..\common\ExceptionExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\common\ExceptionUtility.cs" LinkBase="Common" />
     <Compile Include="..\common\Guard.cs" LinkBase="Common" />
     <Compile Include="..\common\Json.cs" LinkBase="Common" />
-    <Compile Include="..\common\StackFrameInfo.cs" LinkBase="Common" />
+    <Compile Include="..\common\TestOptionsNames.cs" LinkBase="Common" />
+    <Compile Include="..\common\Runners\**\*.cs" LinkBase="Common\Runners" />
+
     <ProjectReference Include="..\xunit.v3.execution\xunit.v3.execution.csproj" />
   </ItemGroup>
 

@@ -12,8 +12,7 @@ namespace Xunit
     {
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
-        /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
-        /// of the .deps.json file generated during the build process.
+        /// an assembly and any of its dependencies.
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolveForAssembly(string assemblyFileName, IMessageSink internalDiagnosticsMessageSink = null)
@@ -21,8 +20,7 @@ namespace Xunit
 
         /// <summary>
         /// Subscribes to the appropriate assembly resolution event, to provide automatic assembly resolution for
-        /// an assembly and any of its dependencies. Depending on the target platform, this may include the use
-        /// of the .deps.json file generated during the build process.
+        /// an assembly and any of its dependencies.
         /// </summary>
         /// <returns>An object which, when disposed, un-subscribes.</returns>
         public static IDisposable SubscribeResolveForAssembly(Type typeInAssembly, IMessageSink internalDiagnosticsMessageSink = null)

@@ -8,9 +8,11 @@ namespace Xunit
     {
         readonly Func<bool> cancelThunk;
         volatile int errors;
+        readonly IMessageSink innerSink;
 
-        public ExecutionMessageSink(Func<bool> cancelThunk = null)
+        public ExecutionMessageSink(IMessageSink innerSink, Func<bool> cancelThunk = null)
         {
+            this.innerSink = innerSink;
             this.cancelThunk = cancelThunk ?? (() => false);
         }
 
@@ -32,13 +34,13 @@ namespace Xunit
             ExecutionSummary.Time = testAssemblyFinishedMessage.ExecutionTime;
             ExecutionSummary.Errors = errors;
 
-            //completionCallback?.Invoke(Path.GetFileNameWithoutExtension(testAssemblyFinishedMessage.Message.TestAssembly.Assembly.AssemblyPath), ExecutionSummary);
-
             Finished.Set();
         }
 
         public bool OnMessage(IMessageSinkMessage message)
         {
+            var result = innerSink.OnMessage(message);
+
             if (message is IErrorMessage ||
                 message is ITestAssemblyCleanupFailure ||
                 message is ITestCaseCleanupFailure ||
@@ -50,16 +52,10 @@ namespace Xunit
                 Interlocked.Increment(ref errors);
             }
 
-            if (message is ITestFailed testFailed)
-            {
-                Console.WriteLine($"FAIL {testFailed.Test.DisplayName}");
-                Console.WriteLine($"     {testFailed.Messages[0]}");
-            }
-
             if (message is ITestAssemblyFinished testAssemblyFinishedMessage)
                 HandleTestAssemblyFinished(testAssemblyFinishedMessage);
 
-            return !cancelThunk();
+            return result && !cancelThunk();
         }
     }
 }

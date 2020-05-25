@@ -8,7 +8,7 @@ namespace Xunit
     /// Transforms stack frames and stack traces into compiler-like output
     /// so they can be double-clicked in Visual Studio.
     /// </summary>
-    public static class StackFrameTransformer
+    static class StackFrameTransformer
     {
         static readonly Regex regex;
 

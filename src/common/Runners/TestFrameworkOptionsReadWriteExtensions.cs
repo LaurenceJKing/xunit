@@ -1,11 +1,12 @@
 using System;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 /// <summary>
 /// Extension methods for reading and writing <see cref="ITestFrameworkDiscoveryOptions"/> and <see cref="ITestFrameworkExecutionOptions"/>.
 /// </summary>
-public static class TestFrameworkOptionsReadWriteExtensions
+static class TestFrameworkOptionsReadWriteExtensions
 {
     // Read/write methods for ITestFrameworkDiscoveryOptions
 
